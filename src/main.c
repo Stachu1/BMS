@@ -6,10 +6,10 @@
 #include "usart.h"
 
 
-#define ADC_TO_VOLTAGE(adc_value) (adc_value * 0.0048875855f)   // 5 / 1023
-#define VOLTAGE_DIVIDER_RATIO 3.0f                              // 1:3 voltage divider
-#define CURRENT_SENSOR_GAIN 2.7027028f                          // 2.7027028 A/V
-#define CURRENT_SENSOR_OFFSET -1.0f                              // 1 A
+#define ADC_TO_VOLTAGE(adc_value) ((float)adc_value * 0.0048875855f)    // 5 / 1023
+#define VOLTAGE_DIVIDER_RATIO 3.0f                                      // 1:3 voltage divider
+#define CURRENT_SENSOR_GAIN 2.7027028f                                  // 2.7027028 A/V
+#define CURRENT_SENSOR_OFFSET -1.12f                                    // -1.12 A
 
 
 volatile uint16_t adc0_value = 0;
@@ -73,6 +73,6 @@ int main(void) {
     float current = ADC_TO_VOLTAGE(adc7_value) * CURRENT_SENSOR_GAIN + CURRENT_SENSOR_OFFSET;
     float power = voltage * current;
     printf("Voltage: %.2f V, Current: %.2f A, Power: %.2f W\n", voltage, current, power);
-    _delay_ms(500);
+    _delay_ms(100);
   }
 }
