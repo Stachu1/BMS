@@ -5,6 +5,13 @@
 #include <util/delay.h>
 #include "usart.h"
 
+
+#define ADC_TO_VOLTAGE(adc_value) (adc_value * 0.0048875855f)   // 5 / 1023
+#define VOLTAGE_DIVIDER_RATIO 3.0f                              // 1:3 voltage divider
+#define CURRENT_SENSOR_GAIN 2.7027028f                          // 2.7027028 A/V
+#define CURRENT_SENSOR_OFFSET -1.0f                              // 1 A
+
+
 volatile uint16_t adc0_value = 0;
 volatile uint16_t adc7_value = 0;
 volatile uint8_t current_channel = 0;
@@ -48,21 +55,24 @@ ISR(ADC_vect) {
 }
 
 int main(void) {
-    // Initialize the UART
-    uart_init();
-    io_redirect();
+  // Initialize the UART
+  uart_init();
+  io_redirect();
 
-    // Initialize the ADC
-    adc_init();
+  // Initialize the ADC
+  adc_init();
 
-    // Initialize Timer1
-    timer1_init();
+  // Initialize Timer1
+  timer1_init();
 
-    // Enable global interrupts
-    sei();
+  // Enable global interrupts
+  sei();
 
-    while (1) {
-        // Main loop
-        // You can use adc0_value and adc7_value here
-    }
+  while (1) {
+    float voltage = ADC_TO_VOLTAGE(adc0_value) * VOLTAGE_DIVIDER_RATIO;
+    float current = ADC_TO_VOLTAGE(adc7_value) * CURRENT_SENSOR_GAIN + CURRENT_SENSOR_OFFSET;
+    float power = voltage * current;
+    printf("Voltage: %.2f V, Current: %.2f A, Power: %.2f W\n", voltage, current, power);
+    _delay_ms(500);
+  }
 }
