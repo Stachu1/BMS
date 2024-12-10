@@ -15,6 +15,7 @@
 volatile uint16_t adc0_value = 0;
 volatile uint16_t adc7_value = 0;
 volatile uint8_t current_channel = 0;
+volatile uint32_t millis = 0; 
 
 void adc_init(void) {
     // AREF = AVcc
@@ -41,6 +42,7 @@ ISR(TIMER1_COMPA_vect) {
     // Start ADC conversion on the current channel
     ADMUX = (ADMUX & 0xF8) | current_channel;
     ADCSRA |= (1 << ADSC);
+    millis++;
 }
 
 ISR(ADC_vect) {
@@ -59,6 +61,9 @@ int main(void) {
   uart_init();
   io_redirect();
 
+  // Set PD3 as output
+  DDRD |= (1 << PD3);
+
   // Initialize the ADC
   adc_init();
 
@@ -68,11 +73,21 @@ int main(void) {
   // Enable global interrupts
   sei();
 
+  _delay_ms(100);
   while (1) {
     float voltage = ADC_TO_VOLTAGE(adc0_value) * VOLTAGE_DIVIDER_RATIO;
     float current = ADC_TO_VOLTAGE(adc7_value) * CURRENT_SENSOR_GAIN + CURRENT_SENSOR_OFFSET;
     float power = voltage * current;
-    printf("Voltage: %.2f V, Current: %.2f A, Power: %.2f W\n", voltage, current, power);
-    _delay_ms(100);
+
+    if (millis % 500 == 0) {
+      printf("%.2f V, %.2f A, %.2f W\n", voltage, current, power);
+    }
+    
+    if (current > 10.0f || voltage < 9.6f) {
+      PORTD |= (1 << PD3);
+      printf("Battery protection triggered\n");
+      printf("%.2f V, %.2f A, %.2f W\n", voltage, current, power);
+      while(1);
+    }
   }
 }
