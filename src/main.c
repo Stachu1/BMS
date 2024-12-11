@@ -4,6 +4,8 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "usart.h"
+#include "lcd.h"
+#include "i2cmaster.h"
 
 
 #define ADC_TO_VOLTAGE(adc_value) ((float)adc_value * 0.0048875855f)    // 5 / 1023
@@ -107,6 +109,8 @@ int main(void) {
   // Initialize the UART
   uart_init();
   io_redirect();
+  i2c_init();
+  LCD_init();
 
   // Set PD3 as output
   DDRD |= (1 << PD3);
@@ -136,7 +140,21 @@ int main(void) {
     float power = voltage * current;
 
     if (millis % 500 == 0) {
-      printf("%.2f V, %.2f A, %.2f W, RPS_ESC: %d, RPS_LED: %d\n", voltage, current, power, rps_esc, rps_led);
+      LCD_set_cursor(0,0);
+      printf("Vol:% 5.2f V    ", voltage);
+      LCD_set_cursor(0,1);
+      printf("Amp:% 5.2f A    ", current);
+      LCD_set_cursor(0,3);
+      printf("Pow:% 5.2f W    ", power);
+      LCD_set_cursor(17,0);
+      printf("ESC");
+      LCD_set_cursor(13,1);
+      printf("%3d RPS", rps_esc);
+      LCD_set_cursor(17,2);
+      printf("LED");
+      LCD_set_cursor(13,3);
+      printf("%3d RPS", rps_led);
+      
     }
     
     if (current > OVERCURRENT_THRESHOLD || voltage < UNDERVOLTAGE_THRESHOLD) {
