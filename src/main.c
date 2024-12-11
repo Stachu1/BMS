@@ -10,9 +10,10 @@
 
 #define ADC_TO_VOLTAGE(adc_value) ((float)adc_value * 0.0048875855f)    // 5 / 1023
 #define VOLTAGE_DIVIDER_RATIO 3.0f                                      // 1:3 voltage divider
-#define CURRENT_SENSOR_GAIN 2.7027028f                                  // 2.7027028 A/V
-#define CURRENT_SENSOR_OFFSET -1.12f                                    // -1.12 A
-#define UNDERVOLTAGE_THRESHOLD 9.6f                                     // 9.6 V
+#define VOLTAGE_OFFSET -0.23f                                             // 0.2 V
+#define CURRENT_SENSOR_GAIN 18.2                                  // 2.7027028 A/V
+#define CURRENT_SENSOR_OFFSET -1.69f                                    // -1.12 A
+#define UNDERVOLTAGE_THRESHOLD -9.6f                                     // 9.6 V
 #define OVERCURRENT_THRESHOLD 10.0f                                     // 10.0 A
 #define IR_LED_PIN PB5                                                  // PD 13
 #define INTERRUPT_PIN PD2                                               // PD2(INT0)
@@ -135,7 +136,7 @@ int main(void) {
   while (1) {
     read_current_speed();
 
-    float voltage = ADC_TO_VOLTAGE(adc0_value) * VOLTAGE_DIVIDER_RATIO;
+    float voltage = ADC_TO_VOLTAGE(adc0_value) * VOLTAGE_DIVIDER_RATIO + VOLTAGE_OFFSET;
     float current = ADC_TO_VOLTAGE(adc7_value) * CURRENT_SENSOR_GAIN + CURRENT_SENSOR_OFFSET;
     float power = voltage * current;
 
