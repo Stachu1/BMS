@@ -13,8 +13,8 @@
 #define VOLTAGE_OFFSET -0.23f                                             // 0.2 V
 #define CURRENT_SENSOR_GAIN 18.2                                  // 2.7027028 A/V
 #define CURRENT_SENSOR_OFFSET -1.69f                                    // -1.12 A
-#define UNDERVOLTAGE_THRESHOLD -9.6f                                     // 9.6 V
-#define OVERCURRENT_THRESHOLD 10.0f                                     // 10.0 A
+#define UNDERVOLTAGE_THRESHOLD 9.6f                                     // 9.6 V
+#define OVERCURRENT_THRESHOLD 20.0f                                     // 10.0 A
 #define IR_LED_PIN PB5                                                  // PD 13
 #define INTERRUPT_PIN PD2                                               // PD2(INT0)
 
@@ -147,20 +147,22 @@ int main(void) {
       printf("Amp:% 5.2f A    ", current);
       LCD_set_cursor(0,3);
       printf("Pow:% 5.2f W    ", power);
-      LCD_set_cursor(17,0);
-      printf("ESC");
-      LCD_set_cursor(13,1);
-      printf("%3d RPS", rps_esc);
-      LCD_set_cursor(17,2);
-      printf("LED");
-      LCD_set_cursor(13,3);
-      printf("%3d RPS", rps_led);
+      // LCD_set_cursor(17,0);
+      // printf("ESC");
+      // LCD_set_cursor(13,1);
+      // printf("%   3d RPS", rps_esc);
+      // LCD_set_cursor(17,2);
+      // printf("LED");
+      // LCD_set_cursor(13,3);
+      // printf("%3d RPS", rps_led);
       
     }
     
     if (current > OVERCURRENT_THRESHOLD || voltage < UNDERVOLTAGE_THRESHOLD) {
       PORTD |= (1 << PD3);
-      printf("Battery protection triggered\n");
+      LCD_clear();
+      LCD_set_cursor(0,0);
+      printf("Battery protection");
       printf("%.2f V, %.2f A, %.2f W\n", voltage, current, power);
       while(1);
     }
